@@ -12,8 +12,8 @@
 
 #include <Wire.h>
 // 定数:モーター関係
-const int motorR = 0x60;
-const int motorL = 0x68;
+const int frontMotor = 0x68;
+const int backMotor = 0x60;
 long Speed;
 long SpeedL, SpeedR;
 #define ADDRESS 0x52
@@ -32,10 +32,10 @@ void setup() {
   delay(1000);
   //Wire1.begin(25, 21);
   Wire.begin(1, 0);  // SDA:G1, SCL:G0
-  writeMotorResister(motorR, 0x00, 0x00); // 停止
-  writeMotorResister(motorL, 0x00, 0x00); // 停止
-  writeMotorResister(motorR, 0x01, 0x80); // エラー解除
-  writeMotorResister(motorL, 0x01, 0x80); // エラー解除
+  writeMotorResister(frontMotor, 0x00, 0x00); // 停止
+  writeMotorResister(backMotor, 0x00, 0x00); // 停止
+  writeMotorResister(frontMotor, 0x01, 0x80); // エラー解除
+  writeMotorResister(backMotor, 0x01, 0x80); // エラー解除
   delay(1000);
   pinMode(PHOTO_SENSOR, INPUT);  // PHOTO_SENSOR番のピンを入力に設定
   pinMode(LED, OUTPUT); // LED番のピンを出力に設定
@@ -62,8 +62,8 @@ void duringDriveCar() {
   if(distance <= 50 || dish_object_distance > 1000) {
     // 車が停止しているときの処理
     digitalWrite(LED, LOW); // LED消灯 // 開発の最終段階で消す
-    writeMotorResister(motorR, 0x00, 0x00); // 停止
-    writeMotorResister(motorL, 0x00, 0x00); // 停止
+    writeMotorResister(frontMotor, 0x00, 0x00); // 停止
+    writeMotorResister(backMotor, 0x00, 0x00); // 停止
     delay(500);
   } else {
     // 車が走行しているときの処理 // 開発の最終段階で消す
@@ -79,8 +79,8 @@ void startDrive() {
     if(car_speed == 0x1E) {
       car_speed--;
     }
-    writeMotorResister(motorR, car_speed, 0x02);
-    writeMotorResister(motorL, car_speed, 0x02);
+    writeMotorResister(frontMotor, car_speed, 0x02);
+    writeMotorResister(backMotor, car_speed, 0x02);
   }
 }
 
