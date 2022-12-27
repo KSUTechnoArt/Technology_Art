@@ -12,8 +12,8 @@
 
 #include <Wire.h>
 // 定数:モーター関係
-const int motorR = 0x60;
-const int motorL = 0x68;
+const int FrontMotor = 0x60;  //前輪モーター
+const int BackMotor = 0x68;  //後輪モーター
 long Speed;
 long SpeedL, SpeedR;
 #define ADDRESS 0x52
@@ -32,10 +32,10 @@ void setup() {
   delay(1000);
   //Wire1.begin(25, 21);
   Wire.begin(1, 0);  // SDA:G1, SCL:G0
-  writeMotorResister(motorR, 0x00, 0x00); // 停止
-  writeMotorResister(motorL, 0x00, 0x00); // 停止
-  writeMotorResister(motorR, 0x01, 0x80); // エラー解除
-  writeMotorResister(motorL, 0x01, 0x80); // エラー解除
+  writeMotorResister(FrontMotor, 0x00, 0x00); // 停止
+  writeMotorResister(BackMotor, 0x00, 0x00); // 停止
+  writeMotorResister(FrontMotor, 0x01, 0x80); // エラー解除
+  writeMotorResister(BackMotor, 0x01, 0x80); // エラー解除
   delay(1000);
   pinMode(PHOTO_SENSOR, INPUT);  // PHOTO_SENSOR番のピンを入力に設定
   pinMode(LED, OUTPUT); // LED番のピンを出力に設定
@@ -53,7 +53,12 @@ void loop() {
   Serial.print("Photo Sensor:");
   Serial.println(dish_object_distance); // フォトリフレクタの取得値をシリアルモニタに出力
   startDrive(); // 運転を開始
-  duringDriveCar(); // 運転中の処理を呼び出す
+  //for(car_speed = 0x06; car_speed <= 0x3F; car_speed++) {
+  //    writeMotorResister(FrontMotor, car_speed, 0x02);
+  //    writeMotorResister(BackMotor, car_speed, 0x02);
+  //    delay(200);
+  //}
+  duringDriveCar();
   delay(45);
 }
 
@@ -62,8 +67,8 @@ void duringDriveCar() {
   if(distance <= 50 || dish_object_distance > 1000) {
     // 車が停止しているときの処理
     digitalWrite(LED, LOW); // LED消灯 // 開発の最終段階で消す
-    writeMotorResister(motorR, 0x00, 0x00); // 停止
-    writeMotorResister(motorL, 0x00, 0x00); // 停止
+    writeMotorResister(FrontMotor, 0x00, 0x00); // 停止
+    writeMotorResister(BackMotor, 0x00, 0x00); // 停止
     delay(500);
   } else {
     // 車が走行しているときの処理 // 開発の最終段階で消す
@@ -79,9 +84,20 @@ void startDrive() {
     if(car_speed == 0x1E) {
       car_speed--;
     }
-    writeMotorResister(motorR, car_speed, 0x02);
-    writeMotorResister(motorL, car_speed, 0x02);
+    writeMotorResister(FrontMotor, car_speed, 0x02);
   }
+  ChangeDirection();
+}
+
+//車の方向を変える
+void ChangeDirection(){
+    if(distance <= 50 || dish_object_distance > 1000){
+        writeMotorResister( FrontMotor, 0x00, 0x00);
+    }else if(distance >= 50 || dish_object_distance < 1000){
+         writeMotorResister( FrontMotor, 0x10, 0x01);
+    }else{
+        writeMotorResister( FrontMotor, 0x10, 0x02);
+    }
 }
 
 // モータドライバ I2C制御 motor driver I2C
