@@ -40,6 +40,7 @@ void setup() {
   pinMode(LED, OUTPUT); // LED番のピンを出力に設定
   Serial.begin(115200); // シリアル通信の設定}
   delay(1000);
+}
 
 void loop() {
   while(1) {
