@@ -24,8 +24,9 @@ uint16_t distance_tmp;
 uint8_t data_cnt;
 
 // 定数:フォトリフレクタ関係
+int dish_object_distance;
 #define PHOTO_SENSOR 4 // フォトリフレクタ用のピン番号
-#define LED 5 // LED用のピン番号 <開発の最終段階で削除する>
+#define LED 5 // LED用のピン番号 // <開発の最終段階で削除する>
 
 void setup() {
   delay(1000);
@@ -48,10 +49,36 @@ void loop() {
   Serial.print(distance); // ToFセンサーの取得値をシリアルモニタに出力
   Serial.println(" mm");
 
-  int dish_object_distance = analogRead(PHOTO_SENSOR); // フォトリフレクタの取得値を読み込み、変数dish_object_distanceに代入
+  dish_object_distance = analogRead(PHOTO_SENSOR); // フォトリフレクタの取得値を読み込み、変数dish_object_distanceに代入
   Serial.print("Photo Sensor:");
   Serial.println(dish_object_distance); // フォトリフレクタの取得値をシリアルモニタに出力
+  startDrive(); // 運転を開始
+  //for(car_speed = 0x06; car_speed <= 0x3F; car_speed++) {
+  //    writeMotorResister(motorR, car_speed, 0x02);
+  //    writeMotorResister(motorL, car_speed, 0x02);
+  //    delay(200);
+  //}
+  duringDriveCar();
+  delay(45);
+}
 
+// 車の運転中の処理
+void duringDriveCar() {
+  if(distance <= 50 || dish_object_distance > 1000) {
+    // 車が停止しているときの処理
+    digitalWrite(LED, LOW); // LED消灯 // 開発の最終段階で消す
+    writeMotorResister(motorR, 0x00, 0x00); // 停止
+    writeMotorResister(motorL, 0x00, 0x00); // 停止
+    delay(500);
+  } else {
+    // 車が走行しているときの処理 // 開発の最終段階で消す
+    digitalWrite(LED, HIGH); // LED点灯
+    startDrive(); // 運転を開始
+  }  
+}
+
+// 車の運転を開始する
+void startDrive(){
   byte car_speed;
   for(car_speed = 0x09; car_speed <= 0x10; car_speed++) {
     if(car_speed == 0x1E) {
@@ -59,30 +86,7 @@ void loop() {
     }
     writeMotorResister(motorR, car_speed, 0x02);
     writeMotorResister(motorL, car_speed, 0x02);
-    //delay(200);
   }
-  //for(car_speed = 0x06; car_speed <= 0x3F; car_speed++) {
-  //    writeMotorResister(motorR, car_speed, 0x02);
-  //    writeMotorResister(motorL, car_speed, 0x02);
-  //    delay(200);
-  //}
-  if(distance <= 50 || dish_object_distance > 1000) {
-    digitalWrite(LED, LOW);
-    writeMotorResister(motorR, 0x00, 0x00); // 停止
-    writeMotorResister(motorL, 0x00, 0x00); // 停止
-    delay(500);
-  } else {
-    digitalWrite(LED, HIGH);
-    byte car_speed;
-    for (car_speed = 0x09; car_speed <= 0x10; car_speed++) {
-      if (car_speed == 0x1E) {
-        car_speed--;
-      }
-    }
-      writeMotorResister(motorR, car_speed, 0x02);
-      writeMotorResister(motorL, car_speed, 0x02);
-  }
-  delay(45);
 }
 
 // モータドライバ I2C制御 motor driver I2C
