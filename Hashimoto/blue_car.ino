@@ -78,7 +78,7 @@ void duringDriveCar() {
 }
 
 // 車の運転を開始する
-void startDrive(){
+void startDrive() {
   byte car_speed;
   for(car_speed = 0x09; car_speed <= 0x10; car_speed++) {
     if(car_speed == 0x1E) {
