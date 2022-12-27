@@ -16,9 +16,11 @@ const int motorL = 0x68;
 long Speed;
 long SpeedL, SpeedR;
 #define ADDRESS 0x52
+
 uint16_t distance;
 uint16_t distance_tmp;
 uint8_t data_cnt;
+
 #define PHOTO_SENSOR 4 // フォトリフレクタ用のピン番号
 #define LED 5 // LED用のピン番号
 
@@ -73,12 +75,12 @@ void loop() {
     Serial.print("Photo Sensor:");
     Serial.println(dish_object_distance); // フォトリフレクタの取得値をシリアルモニタに出力
     if(distance <= 50 || dish_object_distance > 1000) {
-      digitalWrite(LED, LOW);
+      digitalWrite(LED, LOW); // 開発の最終段階で消す
       writeMotorResister(motorR, 0x00, 0x00); // 停止
       writeMotorResister(motorL, 0x00, 0x00); // 停止
       delay(500);
     } else {
-      digitalWrite(LED, HIGH);
+      digitalWrite(LED, HIGH); // 開発の最終段階で消す
     }
   }
   delay(45);
