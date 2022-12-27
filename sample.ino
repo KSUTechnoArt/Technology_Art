@@ -43,19 +43,7 @@ void setup() {
 
 void loop() {
   while(1) {
-    Wire.beginTransmission(ADDRESS);
-    Wire.write(0xD3);
-    Wire.endTransmission(false);
-    Wire.requestFrom(ADDRESS, 2);
-    data_cnt = 0;
-    distance = 0;
-    distance_tmp = 0;
-
-    while(Wire.available()) {
-      distance_tmp = Wire.read();
-      distance = (distance << (data_cnt * 8)) | distance_tmp;
-      data_cnt++;
-    }
+    readDistance(0xD3); // 距離の読み込み(ToFセンサー)
     Serial.print("distance = ");
     Serial.print(distance); // ToFセンサーの取得値をシリアルモニタに出力
     Serial.println(" mm");
@@ -99,6 +87,7 @@ void writeMotorResister(int motor, byte vset, byte data1) {
   Wire.endTransmission(true);
 }
 
+// 距離の読み込み(ToFセンサー)
 int readDistance(byte reg) {
   Wire.beginTransmission(ADDRESS);
   Wire.write(reg);
