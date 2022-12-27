@@ -53,12 +53,7 @@ void loop() {
   Serial.print("Photo Sensor:");
   Serial.println(dish_object_distance); // フォトリフレクタの取得値をシリアルモニタに出力
   startDrive(); // 運転を開始
-  //for(car_speed = 0x06; car_speed <= 0x3F; car_speed++) {
-  //    writeMotorResister(motorR, car_speed, 0x02);
-  //    writeMotorResister(motorL, car_speed, 0x02);
-  //    delay(200);
-  //}
-  duringDriveCar();
+  duringDriveCar(); // 運転中の処理を呼び出す
   delay(45);
 }
 
