@@ -11,6 +11,7 @@
 //21  SCL
 
 #include <Wire.h>
+
 // 定数:モーター関係
 const int frontMotor = 0x68;
 const int backMotor = 0x60;
@@ -48,10 +49,11 @@ void loop() {
   Serial.print("distance = ");
   Serial.print(distance); // ToFセンサーの取得値をシリアルモニタに出力
   Serial.println(" mm");
-
+  
   dish_object_distance = analogRead(PHOTO_SENSOR); // フォトリフレクタの取得値を読み込み、変数dish_object_distanceに代入
   Serial.print("Photo Sensor:");
   Serial.println(dish_object_distance); // フォトリフレクタの取得値をシリアルモニタに出力
+  
   startDrive(); // 運転を開始
   duringDriveCar(); // 運転中の処理を呼び出す
   delay(45);
@@ -66,8 +68,8 @@ void duringDriveCar() {
     writeMotorResister(backMotor, 0x00, 0x00); // 停止
     delay(500);
   } else {
-    // 車が走行しているときの処理 // 開発の最終段階で消す
-    digitalWrite(LED, HIGH); // LED点灯
+    // 車が走行しているときの処理
+    digitalWrite(LED, HIGH); // LED点灯 // 開発の最終段階で消す
     startDrive(); // 運転を開始
   }  
 }
