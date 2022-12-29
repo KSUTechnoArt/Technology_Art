@@ -11,9 +11,10 @@
 //21  SCL
 
 #include <Wire.h>
+
 // 定数:モーター関係
-const int FrontMotor = 0x60;  //前輪モーター
-const int BackMotor = 0x68;  //後輪モーター
+const int frontMotor = 0x68;
+const int backMotor = 0x60;
 long Speed;
 long SpeedL, SpeedR;
 #define ADDRESS 0x52
@@ -32,10 +33,10 @@ void setup() {
   delay(1000);
   //Wire1.begin(25, 21);
   Wire.begin(1, 0);  // SDA:G1, SCL:G0
-  writeMotorResister(FrontMotor, 0x00, 0x00); // 停止
-  writeMotorResister(BackMotor, 0x00, 0x00); // 停止
-  writeMotorResister(FrontMotor, 0x01, 0x80); // エラー解除
-  writeMotorResister(BackMotor, 0x01, 0x80); // エラー解除
+  writeMotorResister(frontMotor, 0x00, 0x00); // 停止
+  writeMotorResister(backMotor, 0x00, 0x00); // 停止
+  writeMotorResister(frontMotor, 0x01, 0x80); // エラー解除
+  writeMotorResister(backMotor, 0x01, 0x80); // エラー解除
   delay(1000);
   pinMode(PHOTO_SENSOR, INPUT);  // PHOTO_SENSOR番のピンを入力に設定
   pinMode(LED, OUTPUT); // LED番のピンを出力に設定
@@ -48,17 +49,13 @@ void loop() {
   Serial.print("distance = ");
   Serial.print(distance); // ToFセンサーの取得値をシリアルモニタに出力
   Serial.println(" mm");
-
+  
   dish_object_distance = analogRead(PHOTO_SENSOR); // フォトリフレクタの取得値を読み込み、変数dish_object_distanceに代入
   Serial.print("Photo Sensor:");
   Serial.println(dish_object_distance); // フォトリフレクタの取得値をシリアルモニタに出力
+  
   startDrive(); // 運転を開始
-  //for(car_speed = 0x06; car_speed <= 0x3F; car_speed++) {
-  //    writeMotorResister(FrontMotor, car_speed, 0x02);
-  //    writeMotorResister(BackMotor, car_speed, 0x02);
-  //    delay(200);
-  //}
-  duringDriveCar();
+  duringDriveCar(); // 運転中の処理を呼び出す
   delay(45);
 }
 
@@ -67,12 +64,12 @@ void duringDriveCar() {
   if(distance <= 50 || dish_object_distance > 1000) {
     // 車が停止しているときの処理
     digitalWrite(LED, LOW); // LED消灯 // 開発の最終段階で消す
-    writeMotorResister(FrontMotor, 0x00, 0x00); // 停止
-    writeMotorResister(BackMotor, 0x00, 0x00); // 停止
+    writeMotorResister(frontMotor, 0x00, 0x00); // 停止
+    writeMotorResister(backMotor, 0x00, 0x00); // 停止
     delay(500);
   } else {
-    // 車が走行しているときの処理 // 開発の最終段階で消す
-    digitalWrite(LED, HIGH); // LED点灯
+    // 車が走行しているときの処理
+    digitalWrite(LED, HIGH); // LED点灯 // 開発の最終段階で消す
     startDrive(); // 運転を開始
   }  
 }
@@ -84,20 +81,9 @@ void startDrive() {
     if(car_speed == 0x1E) {
       car_speed--;
     }
-    writeMotorResister(FrontMotor, car_speed, 0x02);
+    writeMotorResister(frontMotor, car_speed, 0x02);
+    writeMotorResister(backMotor, car_speed, 0x02);
   }
-  ChangeDirection();
-}
-
-//車の方向を変える
-void ChangeDirection(){
-    if(distance <= 50 || dish_object_distance > 1000){
-        writeMotorResister( FrontMotor, 0x00, 0x00);
-    }else if(distance >= 50 || dish_object_distance < 1000){
-         writeMotorResister( FrontMotor, 0x10, 0x01);
-    }else{
-        writeMotorResister( FrontMotor, 0x10, 0x02);
-    }
 }
 
 // モータドライバ I2C制御 motor driver I2C
