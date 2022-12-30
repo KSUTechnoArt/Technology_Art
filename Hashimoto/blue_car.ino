@@ -13,10 +13,8 @@
 #include <Wire.h>
 
 // 定数:モーター関係
-const int frontMotor = 0x68;
-const int backMotor = 0x60;
-long Speed;
-long SpeedL, SpeedR;
+const int frontMotor = 0x68; // 前輪用モーター
+const int backMotor = 0x60;  // 後輪用モーター
 #define ADDRESS 0x52
 
 // 定数:ToFセンサー関係
