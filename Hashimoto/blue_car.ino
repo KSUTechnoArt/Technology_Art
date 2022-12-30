@@ -1,5 +1,6 @@
 // モーターとToFセンサーとフォトリフレクタのプログラムを組み合わせたもの。
-// 「車から5cm以内に障害物がある」または「お皿にモノが置かれていない」ならば、0.5秒間停止するプログラムである。
+// 「車から20cm以内に障害物がある」または「お皿にモノが置かれていない」ならば、1秒間停止する。
+// 「車から5cm以内に障害物がある」ならば、3秒間停止する。
 
 //Sharp MTOF171000C0 I2C
 //Due MTOF
@@ -30,13 +31,12 @@ int distance_PHOTO;
 void setup() {
   delay(1000);
   //Wire1.begin(25, 21);
-  Wire.begin(1, 0);  // SDA:G1, SCL:G0
-  writeMotorResister(frontMotor, 0x00, 0x00); // 停止
-  writeMotorResister(backMotor, 0x00, 0x00); // 停止
+  Wire.begin(1, 0); // SDA:G1, SCL:G0
+  stopDrive(); // 停止
   writeMotorResister(frontMotor, 0x01, 0x80); // エラー解除
   writeMotorResister(backMotor, 0x01, 0x80); // エラー解除
   delay(1000);
-  pinMode(PHOTO_SENSOR, INPUT);  // PHOTO_SENSOR番のピンを入力に設定
+  pinMode(PHOTO_SENSOR, INPUT); // PHOTO_SENSOR番のピンを入力に設定
   pinMode(LED, OUTPUT); // LED番のピンを出力に設定
   Serial.begin(115200); // シリアル通信の設定}
   delay(1000);
@@ -59,17 +59,32 @@ void loop() {
 
 // 車の運転中の処理
 void duringDriveCar() {
-  if(distance_ToF <= 50 || distance_PHOTO > 1000) {
-    // 車が停止しているときの処理
+  if(distance_ToF <= 50) {
+    // 車同士が原因で停止する場合
+    // 停止中の処理
     digitalWrite(LED, LOW); // LED消灯 // 開発の最終段階で消す
-    writeMotorResister(frontMotor, 0x00, 0x00); // 停止
-    writeMotorResister(backMotor, 0x00, 0x00); // 停止
-    delay(500);
+    stopDrive(); // 停止
+    delay(3000); // ここは車が半周するまでの時間に設定しておく。
+  } else if(distance_ToF <= 200 || distance_PHOTO > 1000) {
+    // 人間が原因で停止する場合
+    // 停止中の処理
+    digitalWrite(LED, LOW); // LED消灯 // 開発の最終段階で消す
+    stopDrive(); // 停止
+
+    // もう一方の車も止める(今後その処理を追記する)
+
+    delay(1000);
   } else {
-    // 車が走行しているときの処理
+    // 走行中の処理
     digitalWrite(LED, HIGH); // LED点灯 // 開発の最終段階で消す
     startDrive(); // 運転を開始
-  }  
+  }
+}
+
+// 車の運転を停止する
+void stopDrive() {
+  writeMotorResister(frontMotor, 0x00, 0x00); // 停止
+  writeMotorResister(backMotor, 0x00, 0x00); // 停止
 }
 
 // 車の運転を開始する
