@@ -18,12 +18,12 @@ const int backMotor = 0x60;  // 後輪用モーター
 #define ADDRESS 0x52
 
 // 定数:ToFセンサー関係
-uint16_t distance;
-uint16_t distance_tmp;
-uint8_t data_cnt;
+uint16_t distance_ToF;
+uint16_t distance_tmp_ToF;
+uint8_t data_cnt_ToF;
 
 // 定数:フォトリフレクタ関係
-int dish_object_distance;
+int distance_PHOTO;
 #define PHOTO_SENSOR 4 // フォトリフレクタ用のピン番号
 #define LED 5 // LED用のピン番号 // <開発の最終段階で削除する>
 
@@ -44,13 +44,13 @@ void setup() {
 
 void loop() {
   readDistance(0xD3); // 距離の読み込み(ToFセンサー)
-  Serial.print("distance = ");
-  Serial.print(distance); // ToFセンサーの取得値をシリアルモニタに出力
+  Serial.print("distance_ToF = ");
+  Serial.print(distance_ToF); // ToFセンサーの取得値をシリアルモニタに出力
   Serial.println(" mm");
   
-  dish_object_distance = analogRead(PHOTO_SENSOR); // フォトリフレクタの取得値を読み込み、変数dish_object_distanceに代入
+  distance_PHOTO = analogRead(PHOTO_SENSOR); // フォトリフレクタの取得値を読み込み、変数dish_object_distanceに代入
   Serial.print("Photo Sensor:");
-  Serial.println(dish_object_distance); // フォトリフレクタの取得値をシリアルモニタに出力
+  Serial.println(distance_PHOTO); // フォトリフレクタの取得値をシリアルモニタに出力
   
   startDrive(); // 運転を開始
   duringDriveCar(); // 運転中の処理を呼び出す
@@ -59,7 +59,7 @@ void loop() {
 
 // 車の運転中の処理
 void duringDriveCar() {
-  if(distance <= 50 || dish_object_distance > 1000) {
+  if(distance_ToF <= 50 || distance_PHOTO > 1000) {
     // 車が停止しているときの処理
     digitalWrite(LED, LOW); // LED消灯 // 開発の最終段階で消す
     writeMotorResister(frontMotor, 0x00, 0x00); // 停止
@@ -99,13 +99,13 @@ int readDistance(byte reg) {
   Wire.write(reg);
   Wire.endTransmission(false);
   Wire.requestFrom(ADDRESS, 2);
-  data_cnt = 0;
-  distance = 0;
-  distance_tmp = 0;
+  data_cnt_ToF = 0;
+  distance_ToF = 0;
+  distance_tmp_ToF = 0;
   while(Wire.available()) {
-    distance_tmp = Wire.read();
-    distance = (distance << (data_cnt * 8)) | distance_tmp;
-    data_cnt++;
+    distance_tmp_ToF = Wire.read();
+    distance_ToF = (distance_ToF << (data_cnt_ToF * 8)) | distance_tmp_ToF;
+    data_cnt_ToF++;
   }
-  return distance;
+  return distance_ToF;
 }
