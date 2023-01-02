@@ -38,7 +38,7 @@ void setup() {
   delay(1000);
   pinMode(PHOTO_SENSOR, INPUT); // PHOTO_SENSOR番のピンを入力に設定
   pinMode(LED, OUTPUT); // LED番のピンを出力に設定
-  Serial.begin(115200); // シリアル通信の設定}
+  Serial.begin(115200); // シリアル通信の設定
   delay(1000);
 }
 
