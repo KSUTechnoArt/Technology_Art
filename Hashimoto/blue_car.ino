@@ -30,8 +30,7 @@ int distance_PHOTO;
 
 void setup() {
   delay(1000);
-  //Wire1.begin(25, 21);
-  Wire.begin(1, 0); // SDA:G1, SCL:G0
+  Wire.begin(8, 10); // SDA:G8, SCL:G10
   stopDrive(); // 停止
   writeMotorResister(frontMotor, 0x01, 0x80); // エラー解除
   writeMotorResister(backMotor, 0x01, 0x80); // エラー解除
