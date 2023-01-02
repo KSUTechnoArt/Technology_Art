@@ -48,7 +48,7 @@ void loop() {
   Serial.print(distance_ToF); // ToFセンサーの取得値をシリアルモニタに出力
   Serial.println(" mm");
   
-  distance_PHOTO = analogRead(PHOTO_SENSOR); // フォトリフレクタの取得値を読み込み、変数dish_object_distanceに代入
+  distance_PHOTO = analogRead(PHOTO_SENSOR); // フォトリフレクタの取得値を読み込み、変数distance_PHOTOに代入
   Serial.print("Photo Sensor:");
   Serial.println(distance_PHOTO); // フォトリフレクタの取得値をシリアルモニタに出力
   
