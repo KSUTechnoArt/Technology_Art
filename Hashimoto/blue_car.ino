@@ -1,6 +1,9 @@
-// モーターとToFセンサーとフォトリフレクタのプログラムを組み合わせたもの。
+// モーターとToFセンサー、フォトリフレクタ、ホールセンサーのプログラムを組み合わせたもの。
+
+// このプログラムの動作
 // 「車から20cm以内に障害物がある」または「お皿にモノが置かれていない」ならば、1秒間停止する。
 // 「車から5cm以内に障害物がある」ならば、3秒間停止する。
+// 左側のホールセンサーに磁石があれば、LEDは点灯状態になり、右側のホールセンサーに磁石があれば、LEDは消灯状態になる。
 
 //Sharp MTOF171000C0 I2C
 //Due MTOF
@@ -28,6 +31,13 @@ int distance_PHOTO;
 #define PHOTO_SENSOR 4 // フォトリフレクタ用のピン番号
 #define LED 5 // LED用のピン番号 // <開発の最終段階で削除する>
 
+// 定数:ホールセンサー関係
+#define RIGHT_HALL_SENSOR 0 // ホールセンサー用のピン番号
+#define LEFT_HALL_SENSOR 1 // ホールセンサー用のピン番号
+#define LED_PIN_HALL 6 // <開発の最終段階で削除する>
+int value_Left_Hall;
+int value_Right_Hall;
+
 void setup() {
   delay(1000);
   Wire.begin(8, 10); // SDA:G8, SCL:G10
@@ -37,6 +47,9 @@ void setup() {
   delay(1000);
   pinMode(PHOTO_SENSOR, INPUT); // PHOTO_SENSOR番のピンを入力に設定
   pinMode(LED, OUTPUT); // LED番のピンを出力に設定
+  pinMode(LEFT_HALL_SENSOR, INPUT); // LEFT_HALL_SENSOR番のピンを入力に設定
+  pinMode(RIGHT_HALL_SENSOR, INPUT); // RIGHT_HALL_SENSOR番のピンを入力に設定
+  pinMode(LED_PIN_HALL, OUTPUT); // <開発の最終段階で削除する>
   Serial.begin(115200); // シリアル通信の設定
   delay(1000);
 }
@@ -77,6 +90,18 @@ void duringDriveCar() {
     // 走行中の処理
     digitalWrite(LED, HIGH); // LED点灯 // 開発の最終段階で消す
     startDrive(); // 運転を開始
+    
+    value_Left_Hall = analogRead(LEFT_HALL_SENSOR); // ホールセンサーの取得値を読み込み、変数value_Left_Hallに代入
+    value_Right_Hall = analogRead(RIGHT_HALL_SENSOR); // ホールセンサーの取得値を読み込み、変数value_Right_Hallに代入
+    Serial.print("value_Left_Hall = ");
+    Serial.print(value_Left_Hall); // ホールセンサーの取得値をシリアルモニタに出力
+    Serial.print("\t value_Right_Hall = ");
+    Serial.println(value_Right_Hall); // ホールセンサーの取得値をシリアルモニタに出力
+    if(value_Left_Hall < 2000 || value_Left_Hall > 4000) {
+      digitalWrite(LED_PIN_HALL, HIGH); // <開発の最終段階で削除する>
+    } else if (value_Right_Hall < 2000 || value_Right_Hall > 4000){
+      digitalWrite(LED_PIN_HALL, LOW); // <開発の最終段階で削除する>
+    }
   }
 }
 
