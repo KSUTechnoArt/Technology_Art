@@ -163,14 +163,10 @@ void stopDrive() {
 
 // 車の運転を開始する
 void startDrive() {
-  for(car_speed = 0x09; car_speed <= 0x10; car_speed++) {
-    if(car_speed == 0x1E) {
-      car_speed--;
-    }
-    writeMotorResister(frontMotor, car_speed, 0x02);
-    writeMotorResister(backMotorL, car_speed, 0x02);
-    writeMotorResister(backMotorR, car_speed, 0x02);
-  }
+  car_speed = 0x10;
+  writeMotorResister(frontMotor, car_speed, 0x02);
+  writeMotorResister(backMotorL, car_speed, 0x02);
+  writeMotorResister(backMotorR, car_speed, 0x02);
 }
 
 // モータドライバ I2C制御 motor driver I2C
