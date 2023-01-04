@@ -32,9 +32,11 @@ HIGHとなる時間の範囲は0.5msから2.4msの間。
 #include <Wire.h>
 
 // 定数:モーター関係
-const int frontMotor = 0x68; // 前輪用モーター
-const int backMotor = 0x60;  // 後輪用モーター
+const int frontMotor = 0x62; // 前輪用モーター
+const int backMotorL = 0x60; // 後輪用モーター(左)
+const int backMotorR = 0x68; // 後輪用モーター(右)
 #define ADDRESS 0x52
+byte car_speed; // モーターの回転速度を制御するための変数
 
 // 定数：サーボモータ関係
 #define SERVO_PIN 18 // サーボモータ(前輪モーター)のピン番号
@@ -70,7 +72,8 @@ void setup() {
   Wire.begin(8, 10); // SDA:G8, SCL:G10
   stopDrive(); // 停止
   writeMotorResister(frontMotor, 0x01, 0x80); // エラー解除
-  writeMotorResister(backMotor, 0x01, 0x80); // エラー解除
+  writeMotorResister(backMotorL, 0x01, 0x80); // エラー解除
+  writeMotorResister(backMotorR, 0x01, 0x80); // エラー解除
   delay(1000);
   pinMode(PHOTO_SENSOR, INPUT); // PHOTO_SENSOR番のピンを入力に設定
   pinMode(LED, OUTPUT); // LED番のピンを出力に設定
@@ -134,16 +137,19 @@ void duringDriveCar() {
       // 左側のホールセンサーに磁石があるとき
       digitalWrite(LED_PIN_HALL, HIGH); // <開発の最終段階で削除する>
       length_pwm_time_servo = 2400; // 90度
-      delay(500);
+      writeMotorResister(backMotorL, 0x05, 0x02);
+      delay(10);
     } else if (value_Right_Hall < 2000 || value_Right_Hall > 4000){
       // 右側のホールセンサーに磁石があるとき
       digitalWrite(LED_PIN_HALL, LOW); // <開発の最終段階で削除する>
       length_pwm_time_servo = 500; // -90度
-      delay(500);
+      writeMotorResister(backMotorR, 0x05, 0x02);
+      delay(10);
     } else {
       // 磁石がないとき
+      startDrive();
       length_pwm_time_servo = 1450; // 0度
-      delay(500);
+      delay(10);
     }
   }
 }
@@ -151,18 +157,19 @@ void duringDriveCar() {
 // 車の運転を停止する
 void stopDrive() {
   writeMotorResister(frontMotor, 0x00, 0x00); // 停止
-  writeMotorResister(backMotor, 0x00, 0x00); // 停止
+  writeMotorResister(backMotorL, 0x00, 0x00); // 停止
+  writeMotorResister(backMotorR, 0x00, 0x00); // 停止
 }
 
 // 車の運転を開始する
 void startDrive() {
-  byte car_speed;
   for(car_speed = 0x09; car_speed <= 0x10; car_speed++) {
     if(car_speed == 0x1E) {
       car_speed--;
     }
     writeMotorResister(frontMotor, car_speed, 0x02);
-    writeMotorResister(backMotor, car_speed, 0x02);
+    writeMotorResister(backMotorL, car_speed, 0x02);
+    writeMotorResister(backMotorR, car_speed, 0x02);
   }
 }
 
