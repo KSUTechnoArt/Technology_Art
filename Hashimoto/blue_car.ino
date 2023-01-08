@@ -37,6 +37,8 @@ const int backMotorL = 0x60; // 後輪用モーター(左)
 const int backMotorR = 0x68; // 後輪用モーター(右)
 #define ADDRESS 0x52
 byte car_speed; // モーターの回転速度を制御するための変数
+const double backMotorL_Kp = 0.016056; // 比例制御のための定数
+const double backMotorR_Kp = -0.016056; // 比例制御のための定数
 
 // 定数：サーボモータ関係
 #define SERVO_PIN 18 // サーボモータ(前輪モーター)のピン番号
@@ -126,31 +128,32 @@ void duringDriveCar() {
     // 走行中の処理
     digitalWrite(LED, HIGH); // LED点灯 // 開発の最終段階で消す
     startDrive(); // 運転を開始
-    
     value_Left_Hall = analogRead(LEFT_HALL_SENSOR); // ホールセンサーの取得値を読み込み、変数value_Left_Hallに代入
     value_Right_Hall = analogRead(RIGHT_HALL_SENSOR); // ホールセンサーの取得値を読み込み、変数value_Right_Hallに代入
     Serial.print("value_Left_Hall = ");
     Serial.print(value_Left_Hall); // ホールセンサーの取得値をシリアルモニタに出力
     Serial.print("\t value_Right_Hall = ");
     Serial.println(value_Right_Hall); // ホールセンサーの取得値をシリアルモニタに出力
-    if(value_Left_Hall < 2000 || value_Left_Hall > 4000) {
-      // 左側のホールセンサーに磁石があるとき
-      digitalWrite(LED_PIN_HALL, HIGH); // <開発の最終段階で削除する>
-      length_pwm_time_servo = 2400; // 90度
-      writeMotorResister(backMotorL, 0x06, 0x02);
-    } else if (value_Right_Hall < 2000 || value_Right_Hall > 4000){
+    int value_determine_RL = value_Right_Hall - value_Left_Hall;
+    Serial.println(value_determine_RL); // ホールセンサーの取得値をシリアルモニタに出力
+    if(value_determine_RL > 0) {
       // 右側のホールセンサーに磁石があるとき
-      digitalWrite(LED_PIN_HALL, LOW); // <開発の最終段階で削除する>
-      length_pwm_time_servo = 500; // -90度
-      writeMotorResister(backMotorR, 0x06, 0x02);
+      value_determine_RL = (int)(backMotorR_Kp * (value_determine_RL - 50) + 63);
+      value_determine_RL = max(6, min(63, value_determine_RL));
+      digitalWrite(LED_PIN_HALL, HIGH); // <開発の最終段階で削除する>
+      writeMotorResister(backMotorL, value_determine_RL, 0x01);
+      Serial.print("Speed : ");
+      Serial.println(value_determine_RL);
     } else {
-      // 磁石がないとき
-      startDrive();
-      length_pwm_time_servo = 1450; // 0度
+      // 左側のホールセンサーに磁石があるとき
+      value_determine_RL = (int)(backMotorL_Kp * (value_determine_RL - 50) + 63);
+      value_determine_RL = max(6, min(63, value_determine_RL));
+      digitalWrite(LED_PIN_HALL, LOW); // <開発の最終段階で削除する>
+      writeMotorResister(backMotorR, value_determine_RL, 0x01);
+      Serial.print("Speed : ");
+      Serial.println(value_determine_RL);
     }
     delay(10);
-  }
-}
 
 // 車の運転を停止する
 void stopDrive() {
