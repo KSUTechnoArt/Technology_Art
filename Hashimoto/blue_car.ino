@@ -71,13 +71,13 @@ void loop() {
 
 // 車の運転中の処理
 void duringDriveCar() {
-  if(false) {
+  if(distance_ToF <= 50) {
     // 車同士が原因で停止する場合
     // 停止中の処理
     digitalWrite(LED, LOW); // LED消灯 // 開発の最終段階で消す
     stopDrive(); // 停止
     delay(3000); // ここは車が半周するまでの時間に設定しておく。
-  } else if(false) {
+  } else if(distance_ToF <= 200 || distance_PHOTO > 1000) {
     // 人間が原因で停止する場合
     // 停止中の処理
     digitalWrite(LED, LOW); // LED消灯 // 開発の最終段階で消す
