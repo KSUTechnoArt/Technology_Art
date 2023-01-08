@@ -137,20 +137,18 @@ void duringDriveCar() {
       // 左側のホールセンサーに磁石があるとき
       digitalWrite(LED_PIN_HALL, HIGH); // <開発の最終段階で削除する>
       length_pwm_time_servo = 2400; // 90度
-      writeMotorResister(backMotorL, 0x05, 0x02);
-      delay(10);
+      writeMotorResister(backMotorL, 0x06, 0x02);
     } else if (value_Right_Hall < 2000 || value_Right_Hall > 4000){
       // 右側のホールセンサーに磁石があるとき
       digitalWrite(LED_PIN_HALL, LOW); // <開発の最終段階で削除する>
       length_pwm_time_servo = 500; // -90度
-      writeMotorResister(backMotorR, 0x05, 0x02);
-      delay(10);
+      writeMotorResister(backMotorR, 0x06, 0x02);
     } else {
       // 磁石がないとき
       startDrive();
       length_pwm_time_servo = 1450; // 0度
-      delay(10);
     }
+    delay(10);
   }
 }
 
@@ -163,10 +161,10 @@ void stopDrive() {
 
 // 車の運転を開始する
 void startDrive() {
-  car_speed = 0x10;
-  writeMotorResister(frontMotor, car_speed, 0x02);
-  writeMotorResister(backMotorL, car_speed, 0x02);
-  writeMotorResister(backMotorR, car_speed, 0x02);
+  car_speed = 63;
+  writeMotorResister(frontMotor, car_speed, 0x01);
+  writeMotorResister(backMotorL, car_speed, 0x01);
+  writeMotorResister(backMotorR, car_speed, 0x01);
 }
 
 // モータドライバ I2C制御 motor driver I2C
