@@ -17,8 +17,8 @@ const int backMotorL = 0x60; // 後輪用モーター(左)
 const int backMotorR = 0x68; // 後輪用モーター(右)
 #define ADDRESS 0x52
 byte car_speed; // モーターの回転速度を制御するための変数
-const double backMotorL_Kp = 0.016056; // 比例制御のための定数
-const double backMotorR_Kp = -0.016056; // 比例制御のための定数
+const double backMotorL_Kp = 0.02375; // 比例制御のための定数
+const double backMotorR_Kp = -0.02375; // 比例制御のための定数
 
 // 定数:ToFセンサー関係
 uint16_t distance_ToF;
@@ -71,13 +71,13 @@ void loop() {
 
 // 車の運転中の処理
 void duringDriveCar() {
-  if(distance_ToF <= 50) {
+  if(false) {
     // 車同士が原因で停止する場合
     // 停止中の処理
     digitalWrite(LED, LOW); // LED消灯 // 開発の最終段階で消す
     stopDrive(); // 停止
     delay(3000); // ここは車が半周するまでの時間に設定しておく。
-  } else if(distance_ToF <= 200 || distance_PHOTO > 1000) {
+  } else if(false) {
     // 人間が原因で停止する場合
     // 停止中の処理
     digitalWrite(LED, LOW); // LED消灯 // 開発の最終段階で消す
