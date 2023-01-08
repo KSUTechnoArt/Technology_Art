@@ -1,10 +1,4 @@
-// モーターとサーボモータ、ToFセンサー、フォトリフレクタ、ホールセンサーのプログラムを組み合わせたもの。
-
-// このプログラムの動作(仕様)
-// 「車から20cm以内に障害物がある」または「お皿にモノが置かれていない」ならば、1秒間停止する。
-// 「車から5cm以内に障害物がある」ならば、3秒間停止する。
-// 左側のホールセンサーに磁石があれば、LEDは点灯状態になり、右側のホールセンサーに磁石があれば、LEDは消灯状態になる。
-// サーボモータは、左側のホールセンサーに磁石があれば、90度の方向へ回転し、右側のホールセンサーに磁石があれば、-90度の方向へ回転し、平常時は0度の方向へ回転する。
+// モーターとToFセンサー、フォトリフレクタ、ホールセンサーのプログラムを組み合わせたもの。
 
 //Sharp MTOF171000C0 I2C
 //Due MTOF
@@ -14,20 +8,6 @@
 //19  RX1
 //20  SDA
 //21  SCL
-
-/*
-<サーボモーターについて>
-PWMを利用して回転量を調整する。
-HIGHとなる時間の範囲は0.5msから2.4msの間。
-
-【参考用】
-0.5ms  -> -90度
-1.45ms -> 0度
-2.4ms  -> 90度
-
-なぜタイマー割込みなのか？ -> Servoライブラリが使えないため。
-*/
-
 
 #include <Wire.h>
 
@@ -39,11 +19,6 @@ const int backMotorR = 0x68; // 後輪用モーター(右)
 byte car_speed; // モーターの回転速度を制御するための変数
 const double backMotorL_Kp = 0.016056; // 比例制御のための定数
 const double backMotorR_Kp = -0.016056; // 比例制御のための定数
-
-// 定数：サーボモータ関係
-#define SERVO_PIN 18 // サーボモータ(前輪モーター)のピン番号
-hw_timer_t * timer = NULL; // timer 初期化
-volatile int length_pwm_time_servo = 500; // サーボモータのPWM用変数。volatileは、すぐに値が変わるような変数の型として用いる。
 
 // 定数:ToFセンサー関係
 uint16_t distance_ToF;
@@ -62,13 +37,6 @@ int distance_PHOTO;
 int value_Left_Hall;
 int value_Right_Hall;
 
-//タイマー割込みサービスルーチン
-void IRAM_ATTR call_Servo() {
-  digitalWrite(SERVO_PIN, HIGH);
-  delayMicroseconds(length_pwm_time_servo);
-  digitalWrite(SERVO_PIN, LOW);
-}
-
 void setup() {
   delay(1000);
   Wire.begin(8, 10); // SDA:G8, SCL:G10
@@ -82,12 +50,6 @@ void setup() {
   pinMode(LEFT_HALL_SENSOR, INPUT); // LEFT_HALL_SENSOR番のピンを入力に設定
   pinMode(RIGHT_HALL_SENSOR, INPUT); // RIGHT_HALL_SENSOR番のピンを入力に設定
   pinMode(LED_PIN_HALL, OUTPUT); // <開発の最終段階で削除する>
-  pinMode(SERVO_PIN, OUTPUT);
-  digitalWrite(SERVO_PIN, LOW);
-  timer = timerBegin(0, 80, true); // timer=1us
-  timerAttachInterrupt(timer, &call_Servo, true); // タイマー割込みに使う関数を登録
-  timerAlarmWrite(timer, 20000, true); // タイマー割込み時間の設定us単位 20ms
-  timerAlarmEnable(timer);
   Serial.begin(115200); // シリアル通信の設定
   delay(1000);
 }
