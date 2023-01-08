@@ -154,6 +154,8 @@ void duringDriveCar() {
       Serial.println(value_determine_RL);
     }
     delay(10);
+  }
+}
 
 // 車の運転を停止する
 void stopDrive() {
