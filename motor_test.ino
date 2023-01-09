@@ -26,17 +26,36 @@ void loop() {
 // 車の運転中の処理
 void duringDriveCar() {
   // 走行中の処理
-  writeMotorResister(frontMotor, 0x3f, 0x01);
-  delay(1000);
   stopDrive();
-  delay(1000);
+  delay(500);
+  writeMotorResister(frontMotor, 0x10, 0x01);
+  delay(500);
+
+  stopDrive();
+  delay(500);
+  writeMotorResister(frontMotor, 0x10, 0x02);
+  delay(500);
+
+  stopDrive();
+  delay(500);
   writeMotorResister(backMotorR, 0x3f, 0x01);
-  delay(1000);
-  stopDrive();
-  delay(1000);
   writeMotorResister(backMotorL, 0x3f, 0x01);
   delay(1000);
+  
   stopDrive();
+  delay(500);
+  writeMotorResister(backMotorR, 0x3f, 0x02);
+  writeMotorResister(backMotorL, 0x3f, 0x02);
+  delay(1000);
+  
+  stopDrive();
+  delay(500);
+  writeMotorResister(backMotorR, 0x3f, 0x01);
+  delay(1000);
+
+  stopDrive();
+  delay(500);
+  writeMotorResister(backMotorL, 0x3f, 0x01);
   delay(1000);
 }
 
@@ -50,7 +69,7 @@ void stopDrive() {
 // 車の運転を開始する
 void startDrive() {
   car_speed = 0x3f;
-  writeMotorResister(frontMotor, car_speed, 0x01);
+  writeMotorResister(frontMotor, 0x10, 0x01);
   writeMotorResister(backMotorL, car_speed, 0x01);
   writeMotorResister(backMotorR, car_speed, 0x01);
 }
