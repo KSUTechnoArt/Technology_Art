@@ -17,8 +17,8 @@ const int backMotorL = 0x60; // 後輪用モーター(左)
 const int backMotorR = 0x68; // 後輪用モーター(右)
 #define ADDRESS 0x52
 byte car_speed; // モーターの回転速度を制御するための変数
-const double backMotorL_Kp = 0.02375; // 比例制御のための定数
-const double backMotorR_Kp = -0.02375; // 比例制御のための定数
+const double backMotorL_Kp = 0.2; // 比例制御のための定数
+const double backMotorR_Kp = -0.2; // 比例制御のための定数
 
 // 定数:ToFセンサー関係
 uint16_t distance_ToF;
@@ -103,7 +103,8 @@ void duringDriveCar() {
       value_determine_RL = (int)(backMotorR_Kp * (value_determine_RL - 50) + 63);
       value_determine_RL = max(6, min(63, value_determine_RL));
       digitalWrite(LED_PIN_HALL, HIGH); // <開発の最終段階で削除する>
-      writeMotorResister(backMotorL, value_determine_RL, 0x01);
+      writeMotorResister(backMotorR, value_determine_RL, 0x01);
+      writeMotorResister(backMotorL, 63, 0x01);
       Serial.print("Speed : ");
       Serial.println(value_determine_RL);
     } else {
@@ -111,7 +112,8 @@ void duringDriveCar() {
       value_determine_RL = (int)(backMotorL_Kp * (value_determine_RL - 50) + 63);
       value_determine_RL = max(6, min(63, value_determine_RL));
       digitalWrite(LED_PIN_HALL, LOW); // <開発の最終段階で削除する>
-      writeMotorResister(backMotorR, value_determine_RL, 0x01);
+      writeMotorResister(backMotorR, 63, 0x01);
+      writeMotorResister(backMotorL, value_determine_RL, 0x01);
       Serial.print("Speed : ");
       Serial.println(value_determine_RL);
     }
@@ -129,7 +131,7 @@ void stopDrive() {
 // 車の運転を開始する
 void startDrive() {
   car_speed = 63;
-  writeMotorResister(frontMotor, car_speed, 0x01);
+  writeMotorResister(frontMotor, 0x10, 0x01);
   writeMotorResister(backMotorL, car_speed, 0x01);
   writeMotorResister(backMotorR, car_speed, 0x01);
 }
