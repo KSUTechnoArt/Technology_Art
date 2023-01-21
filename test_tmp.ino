@@ -71,16 +71,16 @@ void loop() {
 
 // 車の運転中の処理
 void duringDriveCar() {
-  if(distance_ToF <= 50) {
+  if(false) {
     // 車同士が原因で停止する場合
     // 停止中の処理
-    digitalWrite(LED, LOW); // LED消灯 // 開発の最終段階で消す
+    digitalWrite(LED, LOW); // LED消灯 // <開発の最終段階で削除する>
     stopDrive(); // 停止
     delay(3000); // ここは車が半周するまでの時間に設定しておく。
-  } else if(distance_ToF <= 200 || distance_PHOTO > 1000) {
+  } else if(false) {
     // 人間が原因で停止する場合
     // 停止中の処理
-    digitalWrite(LED, LOW); // LED消灯 // 開発の最終段階で消す
+    digitalWrite(LED, LOW); // LED消灯 // <開発の最終段階で削除する>
     stopDrive(); // 停止
 
     // もう一方の車も止める(今後その処理を追記する)
@@ -88,7 +88,7 @@ void duringDriveCar() {
     delay(1000);
   } else {
     // 走行中の処理
-    digitalWrite(LED, HIGH); // LED点灯 // 開発の最終段階で消す
+    digitalWrite(LED, HIGH); // LED点灯 // <開発の最終段階で削除する>
     startDrive(); // 運転を開始
     value_Left_Hall = analogRead(LEFT_HALL_SENSOR); // ホールセンサーの取得値を読み込み、変数value_Left_Hallに代入
     value_Right_Hall = analogRead(RIGHT_HALL_SENSOR); // ホールセンサーの取得値を読み込み、変数value_Right_Hallに代入
@@ -98,13 +98,14 @@ void duringDriveCar() {
     Serial.println(value_Right_Hall); // ホールセンサーの取得値をシリアルモニタに出力
     int value_determine_RL = value_Right_Hall - value_Left_Hall;
     Serial.println(value_determine_RL); // ホールセンサーの取得値をシリアルモニタに出力
+
     if(value_determine_RL > 0) {
       // 右側のホールセンサーに磁石があるとき
       value_determine_RL = (int)(backMotorR_Kp * (value_determine_RL - 50) + 63);
       value_determine_RL = max(6, min(63, value_determine_RL));
       digitalWrite(LED_PIN_HALL, HIGH); // <開発の最終段階で削除する>
-      writeMotorResister(backMotorR, value_determine_RL, 0x01);
-      writeMotorResister(backMotorL, 63, 0x01);
+      writeMotorResister(backMotorL, value_determine_RL, 0x01);
+      writeMotorResister(backMotorR, 63, 0x01);
       Serial.print("Speed : ");
       Serial.println(value_determine_RL);
     } else {
@@ -112,8 +113,8 @@ void duringDriveCar() {
       value_determine_RL = (int)(backMotorL_Kp * (value_determine_RL - 50) + 63);
       value_determine_RL = max(6, min(63, value_determine_RL));
       digitalWrite(LED_PIN_HALL, LOW); // <開発の最終段階で削除する>
-      writeMotorResister(backMotorR, 63, 0x01);
-      writeMotorResister(backMotorL, value_determine_RL, 0x01);
+      writeMotorResister(backMotorL, 63, 0x01);
+      writeMotorResister(backMotorR, value_determine_RL, 0x01);
       Serial.print("Speed : ");
       Serial.println(value_determine_RL);
     }
@@ -121,19 +122,19 @@ void duringDriveCar() {
   }
 }
 
+// 車の運転を開始する
+void startDrive() {
+  car_speed = 63;
+  //writeMotorResister(frontMotor, 0x10, 0x01);
+  writeMotorResister(backMotorL, car_speed, 0x01);
+  writeMotorResister(backMotorR, car_speed, 0x01);
+}
+
 // 車の運転を停止する
 void stopDrive() {
   writeMotorResister(frontMotor, 0x00, 0x00); // 停止
   writeMotorResister(backMotorL, 0x00, 0x00); // 停止
   writeMotorResister(backMotorR, 0x00, 0x00); // 停止
-}
-
-// 車の運転を開始する
-void startDrive() {
-  car_speed = 63;
-  writeMotorResister(frontMotor, 0x10, 0x01);
-  writeMotorResister(backMotorL, car_speed, 0x01);
-  writeMotorResister(backMotorR, car_speed, 0x01);
 }
 
 // モータドライバ I2C制御 motor driver I2C
