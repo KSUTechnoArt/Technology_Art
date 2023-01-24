@@ -100,7 +100,7 @@ void duringDriveCar() {
       writeMotorResister(frontMotor, 0x0F, 0x01);
       }
       writeMotorResister(backMotorL, value_determine_RL, 0x01);
-      writeMotorResister(backMotorR, 63, 0x01);
+      writeMotorResister(backMotorR, 63, 0x02);
       Serial.print("Speed : ");
       Serial.println(value_determine_RL);
     } else {
@@ -112,7 +112,7 @@ void duringDriveCar() {
       writeMotorResister(frontMotor, 0x0F, 0x02);
       }
       writeMotorResister(backMotorL, 63, 0x01);
-      writeMotorResister(backMotorR, value_determine_RL, 0x01);
+      writeMotorResister(backMotorR, value_determine_RL, 0x02);
       Serial.print("Speed : ");
       Serial.println(value_determine_RL);
     }
