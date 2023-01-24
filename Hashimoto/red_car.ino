@@ -97,7 +97,7 @@ void duringDriveCar() {
       value_determine_RL = max(6, min(63, value_determine_RL));
       digitalWrite(LED_PIN_HALL, HIGH); // <開発の最終段階で削除する>
       if(value_determine_RL < 45) {
-      writeMotorResister(frontMotor, 0x0F, 0x01);
+      writeMotorResister(frontMotor, 0x14, 0x01);
       }
       writeMotorResister(backMotorL, value_determine_RL, 0x01);
       writeMotorResister(backMotorR, 63, 0x02);
@@ -109,7 +109,7 @@ void duringDriveCar() {
       value_determine_RL = max(6, min(63, value_determine_RL));
       digitalWrite(LED_PIN_HALL, LOW); // <開発の最終段階で削除する>
       if(value_determine_RL < 45) {
-      writeMotorResister(frontMotor, 0x0F, 0x02);
+      writeMotorResister(frontMotor, 0x14, 0x02);
       }
       writeMotorResister(backMotorL, 63, 0x01);
       writeMotorResister(backMotorR, value_determine_RL, 0x02);
