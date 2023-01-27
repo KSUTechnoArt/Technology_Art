@@ -17,13 +17,14 @@ const int backMotorL = 0x60; // 後輪用モーター(左)
 const int backMotorR = 0x68; // 後輪用モーター(右)
 #define ADDRESS 0x52
 byte car_speed; // モーターの回転速度を制御するための変数
-const double backMotorL_Kp = 10.2; // 比例制御のための定数
-const double backMotorR_Kp = -10.2; // 比例制御のための定数
+const double backMotorL_Kp = 2.0; // 比例制御のための定数
+const double backMotorR_Kp = -2.0; // 比例制御のための定数
 
 // 定数:ToFセンサー関係
 uint16_t distance_ToF;
 uint16_t distance_tmp_ToF;
 uint8_t data_cnt_ToF;
+int countToF = 0; // ToFセンサーが何回反応したかカウントする(ホコリなどで誤停止する問題を解決するため)
 
 // 定数:フォトリフレクタ関係
 int distance_PHOTO;
@@ -72,14 +73,23 @@ void loop() {
 void duringDriveCar() {
   if(distance_ToF <= 50 || distance_PHOTO > 2500) {
     // 停止中の処理(相手が手の場合)
-    digitalWrite(LED, LOW); // LED消灯 // <開発の最終段階で削除する>
-    stopDrive(3000); // 停止(ここはモノを取るのに十分な時間だけ止まるよう設定しておく)
+    countToF++;
+    if(countToF > 10) {
+      digitalWrite(LED, LOW); // LED消灯 // <開発の最終段階で削除する>
+      stopDrive(3000); // 停止(ここはモノを取るのに十分な時間だけ止まるよう設定しておく)
+      countToF = 10;
+    }
   } else if(distance_ToF <= 80) {
     // 停止中の処理(相手が車の場合)
-    digitalWrite(LED, LOW); // LED消灯 // <開発の最終段階で削除する>
-    stopDrive(10000); // 停止(ここは車が半周するまでの時間に設定しておく)
+    countToF++;
+    if(countToF > 10) {
+      digitalWrite(LED, LOW); // LED消灯 // <開発の最終段階で削除する>
+      stopDrive(10000); // 停止(ここは車が半周するまでの時間に設定しておく)
+      countToF = 10;
+    }
   } else {
     // 走行中の処理
+    countToF = 0;
     digitalWrite(LED, HIGH); // LED点灯 // <開発の最終段階で削除する>
     startDrive(); // 運転を開始
     value_Left_Hall = analogRead(LEFT_HALL_SENSOR); // ホールセンサーの取得値を読み込み、変数value_Left_Hallに代入
@@ -94,24 +104,24 @@ void duringDriveCar() {
     if(value_determine_RL > 0) {
       // 右側のホールセンサーに磁石があるとき
       value_determine_RL = (int)(backMotorR_Kp * (value_determine_RL - 50) + 63);
-      value_determine_RL = max(6, min(45, value_determine_RL));
+      value_determine_RL = max(6, min(50, value_determine_RL));
       digitalWrite(LED_PIN_HALL, HIGH); // <開発の最終段階で削除する>
-      if(value_determine_RL < 35) {
+      if(value_determine_RL < 45) {
       writeMotorResister(frontMotor, 0x14, 0x02);
       }
       writeMotorResister(backMotorL, value_determine_RL, 0x01);
-      writeMotorResister(backMotorR, 45, 0x01);
+      writeMotorResister(backMotorR, 50, 0x01);
       Serial.print("Speed : ");
       Serial.println(value_determine_RL);
     } else {
       // 左側のホールセンサーに磁石があるとき
       value_determine_RL = (int)(backMotorL_Kp * (value_determine_RL - 50) + 63);
-      value_determine_RL = max(6, min(45, value_determine_RL));
+      value_determine_RL = max(6, min(50, value_determine_RL));
       digitalWrite(LED_PIN_HALL, LOW); // <開発の最終段階で削除する>
-      if(value_determine_RL < 35) {
+      if(value_determine_RL < 45) {
       writeMotorResister(frontMotor, 0x14, 0x01);
       }
-      writeMotorResister(backMotorL, 45, 0x01);
+      writeMotorResister(backMotorL, 50, 0x01);
       writeMotorResister(backMotorR, value_determine_RL, 0x01);
       Serial.print("Speed : ");
       Serial.println(value_determine_RL);
