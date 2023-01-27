@@ -94,24 +94,24 @@ void duringDriveCar() {
     if(value_determine_RL > 0) {
       // 右側のホールセンサーに磁石があるとき
       value_determine_RL = (int)(backMotorR_Kp * (value_determine_RL - 50) + 63);
-      value_determine_RL = max(6, min(63, value_determine_RL));
+      value_determine_RL = max(6, min(45, value_determine_RL));
       digitalWrite(LED_PIN_HALL, HIGH); // <開発の最終段階で削除する>
-      if(value_determine_RL < 45) {
+      if(value_determine_RL < 35) {
       writeMotorResister(frontMotor, 0x14, 0x02);
       }
       writeMotorResister(backMotorL, value_determine_RL, 0x01);
-      writeMotorResister(backMotorR, 63, 0x01);
+      writeMotorResister(backMotorR, 45, 0x01);
       Serial.print("Speed : ");
       Serial.println(value_determine_RL);
     } else {
       // 左側のホールセンサーに磁石があるとき
       value_determine_RL = (int)(backMotorL_Kp * (value_determine_RL - 50) + 63);
-      value_determine_RL = max(6, min(63, value_determine_RL));
+      value_determine_RL = max(6, min(45, value_determine_RL));
       digitalWrite(LED_PIN_HALL, LOW); // <開発の最終段階で削除する>
-      if(value_determine_RL < 45) {
+      if(value_determine_RL < 35) {
       writeMotorResister(frontMotor, 0x14, 0x01);
       }
-      writeMotorResister(backMotorL, 63, 0x01);
+      writeMotorResister(backMotorL, 45, 0x01);
       writeMotorResister(backMotorR, value_determine_RL, 0x01);
       Serial.print("Speed : ");
       Serial.println(value_determine_RL);
@@ -121,7 +121,7 @@ void duringDriveCar() {
 
 // 車の運転を開始する
 void startDrive() {
-  car_speed = 63;
+  car_speed = 50;
   //writeMotorResister(frontMotor, 0x10, 0x01);
   writeMotorResister(backMotorL, car_speed, 0x01);
   writeMotorResister(backMotorR, car_speed, 0x01);
