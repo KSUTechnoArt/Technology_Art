@@ -108,7 +108,7 @@ void duringDriveCar() {
     if(value_determine_RL > 0) {
       // 右側のホールセンサーに磁石があるとき
       value_determine_RL = (int)(backMotorR_Kp * (value_determine_RL - 50) + 63);
-      value_determine_RL = max(6, min(63, value_determine_RL));
+      value_determine_RL = max(10, min(63, value_determine_RL));
       digitalWrite(LED_PIN_HALL, HIGH); // <開発の最終段階で削除する>
       if(value_determine_RL < 45) {
       writeMotorResister(frontMotor, 0x18, 0x02);
@@ -120,7 +120,7 @@ void duringDriveCar() {
     } else {
       // 左側のホールセンサーに磁石があるとき
       value_determine_RL = (int)(backMotorL_Kp * (value_determine_RL - 50) + 63);
-      value_determine_RL = max(6, min(63, value_determine_RL));
+      value_determine_RL = max(10, min(63, value_determine_RL));
       digitalWrite(LED_PIN_HALL, LOW); // <開発の最終段階で削除する>
       if(value_determine_RL < 45) {
       writeMotorResister(frontMotor, 0x18, 0x01);
