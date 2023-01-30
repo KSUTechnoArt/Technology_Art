@@ -17,8 +17,8 @@ const int backMotorL = 0x60; // 後輪用モーター(左)
 const int backMotorR = 0x68; // 後輪用モーター(右)
 #define ADDRESS 0x52
 byte car_speed; // モーターの回転速度を制御するための変数
-const double backMotorL_Kp = 2.0; // 比例制御のための定数
-const double backMotorR_Kp = -2.0; // 比例制御のための定数
+const double backMotorL_Kp = 8.0; // 比例制御のための定数
+const double backMotorR_Kp = -8.0; // 比例制御のための定数
 
 // 定数:ToFセンサー関係
 uint16_t distance_ToF;
