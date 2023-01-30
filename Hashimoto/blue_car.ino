@@ -37,6 +37,7 @@ int distance_PHOTO;
 #define LED_PIN_HALL 6 // <開発の最終段階で削除する>
 int value_Left_Hall;
 int value_Right_Hall;
+int times_no_reaction_Hall = 0; // ホールセンサーが磁石に反応しなかった時間
 
 void setup() {
   Wire.begin(8, 10); // SDA:G8, SCL:G10
@@ -71,7 +72,10 @@ void loop() {
 
 // 車の運転中の処理
 void duringDriveCar() {
-  if(distance_ToF <= 50 || distance_PHOTO > 2500) {
+  if(distance_PHOTO > 2500) {
+    // モノが置かれていないとき
+    stopDrive(100);
+  } else if(distance_ToF <= 50) {
     // 停止中の処理(相手が手の場合)
     countToF++;
     if(countToF > 10) {
@@ -125,6 +129,17 @@ void duringDriveCar() {
       writeMotorResister(backMotorR, value_determine_RL, 0x01);
       Serial.print("Speed : ");
       Serial.println(value_determine_RL);
+    }
+
+    // テーブルからの落下防止
+    if(times_no_reaction_Hall >= 2500 && distance_PHOTO <= 2500) {
+      while(true) {
+        stopDrive(1000); // 落下しそうになったら永遠に動かさないようにする。
+      }
+    } else if(abs(value_determine_RL) < 20 && distance_PHOTO <= 2500) {
+      times_no_reaction_Hall += 10; // 磁石が反応しなかった時間を加える。
+    } else {
+      times_no_reaction_Hall = 0; // 磁石が反応しなかった時間をリセットする。
     }
   }
 }
