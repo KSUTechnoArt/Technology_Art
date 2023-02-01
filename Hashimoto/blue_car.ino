@@ -117,7 +117,7 @@ void duringDriveCar() {
       writeMotorResister(backMotorR, 50, 0x01);
       // 前輪のコントロール
       keep_times_right_motor += 10;
-      if(keep_times_left_motor > 300 && motor_state_time > 300) {
+      if(keep_times_left_motor > 100 && motor_state_time > 100) {
         motor_state = 1;
         keep_times_left_motor = 0;
         keep_times_right_motor = 0;
@@ -133,7 +133,7 @@ void duringDriveCar() {
       writeMotorResister(backMotorR, value_determine_RL, 0x01);
       // 前輪のコントロール
       keep_times_left_motor += 10;
-      if(keep_times_right_motor > 300 && motor_state_time > 300) {
+      if(keep_times_right_motor > 100 && motor_state_time > 100) {
         motor_state = 0;
         keep_times_left_motor = 0;
         keep_times_right_motor = 0;
