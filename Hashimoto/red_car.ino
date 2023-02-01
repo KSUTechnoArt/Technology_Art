@@ -19,6 +19,10 @@ const int backMotorR = 0x68; // 後輪用モーター(右)
 byte car_speed; // モーターの回転速度を制御するための変数
 const double backMotorL_Kp = 6.0; // 比例制御のための定数
 const double backMotorR_Kp = -6.0; // 比例制御のための定数
+int keep_times_left_motor = 0; // 左折の継続時間
+int keep_times_right_motor = 0; // 右折の継続時間
+int motor_state = 0; // モーターの状況を状態として管理
+int motor_state_time = 0; // モーターの稼働時間
 
 // 定数:ToFセンサー関係
 uint16_t distance_ToF;
@@ -109,11 +113,15 @@ void duringDriveCar() {
       value_determine_RL = (int)(backMotorR_Kp * (value_determine_RL - 50) + 63);
       value_determine_RL = max(10, min(63, value_determine_RL));
       digitalWrite(LED_PIN_HALL, HIGH); // <開発の最終段階で削除する>
-      if(value_determine_RL < 45) {
-        writeMotorResister(frontMotor, 0x18, 0x02);
-      }
       writeMotorResister(backMotorL, value_determine_RL, 0x01);
       writeMotorResister(backMotorR, 63, 0x02);
+      // 前輪のコントロール
+      keep_times_right_motor += 10;
+      if(keep_times_left_motor > 300 && motor_state_time > 300) {
+        motor_state = 1;
+        keep_times_left_motor = 0;
+        keep_times_right_motor = 0;
+      }
       Serial.print("Speed : ");
       Serial.println(value_determine_RL);
     } else {
@@ -121,14 +129,24 @@ void duringDriveCar() {
       value_determine_RL = (int)(backMotorL_Kp * (value_determine_RL - 50) + 63);
       value_determine_RL = max(10, min(63, value_determine_RL));
       digitalWrite(LED_PIN_HALL, LOW); // <開発の最終段階で削除する>
-      if(value_determine_RL < 45) {
-        writeMotorResister(frontMotor, 0x18, 0x01);
-      }
       writeMotorResister(backMotorL, 63, 0x01);
       writeMotorResister(backMotorR, value_determine_RL, 0x02);
+      // 前輪のコントロール
+      keep_times_left_motor += 10;
+      if(keep_times_right_motor > 300 && motor_state_time > 300) {
+        motor_state = 0;
+        keep_times_left_motor = 0;
+        keep_times_right_motor = 0;
+      }
       Serial.print("Speed : ");
       Serial.println(value_determine_RL);
     }
+    if(motor_state) {
+      writeMotorResister(frontMotor, 0x18, 0x02); // right
+    } else {
+      writeMotorResister(frontMotor, 0x18, 0x01); // left
+    }
+    motor_state_time += 10;
   }
 }
 
