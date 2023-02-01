@@ -37,7 +37,6 @@ int distance_PHOTO;
 #define LED_PIN_HALL 6 // <開発の最終段階で削除する>
 int value_Left_Hall;
 int value_Right_Hall;
-int times_no_reaction_Hall = 0; // ホールセンサーが磁石に反応しなかった時間
 
 void setup() {
   Wire.begin(8, 10); // SDA:G8, SCL:G10
@@ -72,7 +71,7 @@ void loop() {
 
 // 車の運転中の処理
 void duringDriveCar() {
-  if(distance_PHOTO > 2500) {
+  if(distance_PHOTO > 1500) {
     // モノが置かれていないとき
     stopDrive(100);
   } else if(distance_ToF <= 50) {
@@ -110,8 +109,8 @@ void duringDriveCar() {
       value_determine_RL = (int)(backMotorR_Kp * (value_determine_RL - 50) + 63);
       value_determine_RL = max(6, min(50, value_determine_RL));
       digitalWrite(LED_PIN_HALL, HIGH); // <開発の最終段階で削除する>
-      if(value_determine_RL < 45) {
-      writeMotorResister(frontMotor, 0x14, 0x02);
+      if(value_determine_RL < 10) {
+        writeMotorResister(frontMotor, 0x14, 0x02);
       }
       writeMotorResister(backMotorL, value_determine_RL, 0x01);
       writeMotorResister(backMotorR, 50, 0x01);
@@ -120,29 +119,16 @@ void duringDriveCar() {
     } else {
       // 左側のホールセンサーに磁石があるとき
       value_determine_RL = (int)(backMotorL_Kp * (value_determine_RL - 50) + 63);
-      value_determine_RL = max(6, min(50, value_determine_RL));
+      value_determine_RL = max(6, min(63, value_determine_RL));
       digitalWrite(LED_PIN_HALL, LOW); // <開発の最終段階で削除する>
-      if(value_determine_RL < 45) {
-      writeMotorResister(frontMotor, 0x14, 0x01);
+      if(value_determine_RL < 10) {
+        writeMotorResister(frontMotor, 0x14, 0x01);
       }
-      writeMotorResister(backMotorL, 50, 0x01);
+      writeMotorResister(backMotorL, 63, 0x01);
       writeMotorResister(backMotorR, value_determine_RL, 0x01);
       Serial.print("Speed : ");
       Serial.println(value_determine_RL);
     }
-
-    // テーブルからの落下防止
-    if(times_no_reaction_Hall >= 2500 && distance_PHOTO <= 2500) {
-      while(true) {
-        stopDrive(1000); // 落下しそうになったら永遠に動かさないようにする。
-      }
-    } else if(abs(value_determine_RL) < 20 && distance_PHOTO <= 2500) {
-      times_no_reaction_Hall += 10; // 磁石が反応しなかった時間を加える。
-    } else {
-      times_no_reaction_Hall = 0; // 磁石が反応しなかった時間をリセットする。
-    }
-  }
-}
 
 // 車の運転を開始する
 void startDrive() {
