@@ -22,7 +22,6 @@ const double backMotorR_Kp = -8.0; // 比例制御のための定数
 int keep_times_left_motor = 0; // 左折の継続時間
 int keep_times_right_motor = 0; // 右折の継続時間
 int motor_state = 0; // モーターの状況を状態として管理
-int motor_state_time = 0; // モーターの稼働時間
 
 // 定数:ToFセンサー関係
 uint16_t distance_ToF;
@@ -75,7 +74,7 @@ void loop() {
 
 // 車の運転中の処理
 void duringDriveCar() {
-  if(distance_PHOTO > 1500) {
+  if(distance_PHOTO > 1200) {
     // モノが置かれていないとき
     stopDrive(100);
   } else if(distance_ToF <= 50) {
@@ -117,7 +116,7 @@ void duringDriveCar() {
       writeMotorResister(backMotorR, 50, 0x01);
       // 前輪のコントロール
       keep_times_right_motor += 10;
-      if(keep_times_left_motor > 100 && motor_state_time > 100) {
+      if(keep_times_left_motor > 200) {
         motor_state = 1;
         keep_times_left_motor = 0;
         keep_times_right_motor = 0;
@@ -133,7 +132,7 @@ void duringDriveCar() {
       writeMotorResister(backMotorR, value_determine_RL, 0x01);
       // 前輪のコントロール
       keep_times_left_motor += 10;
-      if(keep_times_right_motor > 100 && motor_state_time > 100) {
+      if(keep_times_right_motor > 200) {
         motor_state = 0;
         keep_times_left_motor = 0;
         keep_times_right_motor = 0;
@@ -146,7 +145,6 @@ void duringDriveCar() {
     } else {
       writeMotorResister(frontMotor, 0x14, 0x01); // left
     }
-    motor_state_time += 10;
   }
 }
 
