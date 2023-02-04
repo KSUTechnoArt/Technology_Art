@@ -32,14 +32,16 @@ int countToF = 0; // ToFセンサーが何回反応したかカウントする(�
 // 定数:フォトリフレクタ関係
 int distance_PHOTO;
 #define PHOTO_SENSOR 4 // フォトリフレクタ用のピン番号
-#define LED 5 // LED用のピン番号 // <開発の最終段階で削除する>
 
 // 定数:ホールセンサー関係
 #define RIGHT_HALL_SENSOR 0 // ホールセンサー用のピン番号
 #define LEFT_HALL_SENSOR 1 // ホールセンサー用のピン番号
-#define LED_PIN_HALL 6 // <開発の最終段階で削除する>
 int value_Left_Hall;
 int value_Right_Hall;
+
+// 定数:LED関係
+#define LEFT_LED 5 // ヘッドライト(左)
+#define RIGHT_LED 6 // ヘッドライト(右) 
 
 void setup() {
   Wire.begin(8, 10); // SDA:G8, SCL:G10
@@ -48,10 +50,10 @@ void setup() {
   writeMotorResister(backMotorL, 0x01, 0x80); // エラー解除
   writeMotorResister(backMotorR, 0x01, 0x80); // エラー解除
   pinMode(PHOTO_SENSOR, INPUT); // PHOTO_SENSOR番のピンを入力に設定
-  pinMode(LED, OUTPUT); // LED番のピンを出力に設定
   pinMode(LEFT_HALL_SENSOR, INPUT); // LEFT_HALL_SENSOR番のピンを入力に設定
   pinMode(RIGHT_HALL_SENSOR, INPUT); // RIGHT_HALL_SENSOR番のピンを入力に設定
-  pinMode(LED_PIN_HALL, OUTPUT); // <開発の最終段階で削除する>
+  pinMode(LEFT_LED, OUTPUT);
+  pinMode(RIGHT_LED, OUTPUT);
   Serial.begin(115200); // シリアル通信の設定
   delay(500);
 }
@@ -76,27 +78,42 @@ void loop() {
 void duringDriveCar() {
   if(distance_PHOTO > 1200) {
     // モノが置かれていないとき
+    digitalWrite(LEFT_LED, LOW);
+    digitalWrite(RIGHT_LED, LOW);
     stopDrive(100);
   } else if(distance_ToF <= 50) {
     // 停止中の処理(相手が手の場合)
     countToF++;
     if(countToF > 10) {
-      digitalWrite(LED, LOW); // LED消灯 // <開発の最終段階で削除する>
-      stopDrive(3000); // 停止(ここはモノを取るのに十分な時間だけ止まるよう設定しておく)
+      for(int i = 0; i < 3; i++){
+        digitalWrite(LEFT_LED, HIGH);
+        digitalWrite(RIGHT_LED, HIGH);
+        stopDrive(500);
+        digitalWrite(LEFT_LED, LOW);
+        digitalWrite(RIGHT_LED, LOW);
+        stopDrive(500);
+      }
       countToF = 10;
     }
   } else if(distance_ToF <= 80) {
     // 停止中の処理(相手が車の場合)
     countToF++;
     if(countToF > 10) {
-      digitalWrite(LED, LOW); // LED消灯 // <開発の最終段階で削除する>
-      stopDrive(10000); // 停止(ここは車が半周するまでの時間に設定しておく)
+      for(int i = 0; i < 5; i++){
+        digitalWrite(LEFT_LED, HIGH);
+        digitalWrite(RIGHT_LED, HIGH);
+        stopDrive(1000);
+        digitalWrite(LEFT_LED, LOW);
+        digitalWrite(RIGHT_LED, LOW);
+        stopDrive(1000);
+      }
       countToF = 10;
     }
   } else {
     // 走行中の処理
     countToF = 0;
-    digitalWrite(LED, HIGH); // LED点灯 // <開発の最終段階で削除する>
+    digitalWrite(LEFT_LED, HIGH);
+    digitalWrite(RIGHT_LED, HIGH);
     startDrive(); // 運転を開始
     value_Left_Hall = analogRead(LEFT_HALL_SENSOR); // ホールセンサーの取得値を読み込み、変数value_Left_Hallに代入
     value_Right_Hall = analogRead(RIGHT_HALL_SENSOR); // ホールセンサーの取得値を読み込み、変数value_Right_Hallに代入
@@ -111,7 +128,6 @@ void duringDriveCar() {
       // 右側のホールセンサーに磁石があるとき
       value_determine_RL = (int)(backMotorR_Kp * (value_determine_RL - 50) + 63);
       value_determine_RL = max(6, min(50, value_determine_RL));
-      digitalWrite(LED_PIN_HALL, HIGH); // <開発の最終段階で削除する>
       writeMotorResister(backMotorL, value_determine_RL, 0x01);
       writeMotorResister(backMotorR, 50, 0x01);
       // 前輪のコントロール
@@ -127,7 +143,6 @@ void duringDriveCar() {
       // 左側のホールセンサーに磁石があるとき
       value_determine_RL = (int)(backMotorL_Kp * (value_determine_RL - 50) + 63);
       value_determine_RL = max(6, min(63, value_determine_RL));
-      digitalWrite(LED_PIN_HALL, LOW); // <開発の最終段階で削除する>
       writeMotorResister(backMotorL, 63, 0x01);
       writeMotorResister(backMotorR, value_determine_RL, 0x01);
       // 前輪のコントロール
