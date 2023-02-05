@@ -52,6 +52,8 @@ void setup() {
   pinMode(PHOTO_SENSOR, INPUT); // PHOTO_SENSOR番のピンを入力に設定
   pinMode(LEFT_HALL_SENSOR, INPUT); // LEFT_HALL_SENSOR番のピンを入力に設定
   pinMode(RIGHT_HALL_SENSOR, INPUT); // RIGHT_HALL_SENSOR番のピンを入力に設定
+  pinMode(LEFT_LED, OUTPUT);
+  pinMode(RIGHT_LED, OUTPUT);
   Serial.begin(115200); // シリアル通信の設定
   delay(500);
 }
@@ -83,13 +85,13 @@ void duringDriveCar() {
     // 停止中の処理(相手が手の場合)
     countToF++;
     if(countToF > 10) {
-      for(int i = 0; i < 3; i++){
+      for(int i = 0; i < 6; i++){
         digitalWrite(LEFT_LED, HIGH);
         digitalWrite(RIGHT_LED, HIGH);
-        stopDrive(500);
+        stopDrive(250);
         digitalWrite(LEFT_LED, LOW);
         digitalWrite(RIGHT_LED, LOW);
-        stopDrive(500);
+        stopDrive(250);
       }
       countToF = 10;
     }
@@ -97,13 +99,13 @@ void duringDriveCar() {
     // 停止中の処理(相手が車の場合)
     countToF++;
     if(countToF > 10) {
-      for(int i = 0; i < 5; i++){
+      for(int i = 0; i < 10; i++){
         digitalWrite(LEFT_LED, HIGH);
         digitalWrite(RIGHT_LED, HIGH);
-        stopDrive(1000);
+        stopDrive(750);
         digitalWrite(LEFT_LED, LOW);
         digitalWrite(RIGHT_LED, LOW);
-        stopDrive(1000);
+        stopDrive(250);
       }
       countToF = 10;
     }
